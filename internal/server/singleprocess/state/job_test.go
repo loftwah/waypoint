@@ -6,8 +6,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	pb "github.com/hashicorp/waypoint/internal/server/gen"
-	serverptypes "github.com/hashicorp/waypoint/internal/server/ptypes"
+	pb "github.com/hashicorp/waypoint/pkg/server/gen"
+	"github.com/hashicorp/waypoint/pkg/server/ptypes"
 )
 
 func TestJobAck(t *testing.T) {
@@ -18,7 +18,7 @@ func TestJobAck(t *testing.T) {
 		defer s.Close()
 
 		// Create a build
-		job := serverptypes.TestJobNew(t, &pb.Job{
+		job := ptypes.TestJobNew(t, &pb.Job{
 			Id: "A",
 		})
 		require.NoError(s.JobCreate(job))
@@ -46,7 +46,7 @@ func TestJobCreateMulti(t *testing.T) {
 		defer s.Close()
 
 		jobList := make([]*pb.Job, 0, 1)
-		jobList = append(jobList, serverptypes.TestJobNew(t, &pb.Job{
+		jobList = append(jobList, ptypes.TestJobNew(t, &pb.Job{
 			Id: "A",
 		}))
 
@@ -63,13 +63,13 @@ func TestJobCreateMulti(t *testing.T) {
 		defer s.Close()
 
 		jobList := make([]*pb.Job, 0, 3)
-		jobList = append(jobList, serverptypes.TestJobNew(t, &pb.Job{
+		jobList = append(jobList, ptypes.TestJobNew(t, &pb.Job{
 			Id: "A",
 		}))
-		jobList = append(jobList, serverptypes.TestJobNew(t, &pb.Job{
+		jobList = append(jobList, ptypes.TestJobNew(t, &pb.Job{
 			Id: "B",
 		}))
-		jobList = append(jobList, serverptypes.TestJobNew(t, &pb.Job{
+		jobList = append(jobList, ptypes.TestJobNew(t, &pb.Job{
 			Id: "C",
 		}))
 
@@ -88,7 +88,7 @@ func TestJobAssignForRunner(t *testing.T) {
 		defer s.Close()
 
 		// Create a build
-		require.NoError(s.JobCreate(serverptypes.TestJobNew(t, &pb.Job{
+		require.NoError(s.JobCreate(ptypes.TestJobNew(t, &pb.Job{
 			Id: "A",
 		})))
 
@@ -111,14 +111,14 @@ func TestJobsPrune(t *testing.T) {
 		defer s.Close()
 
 		// Create a build
-		require.NoError(s.JobCreate(serverptypes.TestJobNew(t, &pb.Job{
+		require.NoError(s.JobCreate(ptypes.TestJobNew(t, &pb.Job{
 			Id: "A",
 		})))
 
 		// Cancel it
 		require.NoError(s.JobCancel("A", false))
 
-		require.NoError(s.JobCreate(serverptypes.TestJobNew(t, &pb.Job{
+		require.NoError(s.JobCreate(ptypes.TestJobNew(t, &pb.Job{
 			Id: "B",
 		})))
 
@@ -151,14 +151,14 @@ func TestJobsPrune(t *testing.T) {
 		defer s.Close()
 
 		// Create a build
-		require.NoError(s.JobCreate(serverptypes.TestJobNew(t, &pb.Job{
+		require.NoError(s.JobCreate(ptypes.TestJobNew(t, &pb.Job{
 			Id: "A",
 		})))
 
 		// Cancel it
 		require.NoError(s.JobCancel("A", false))
 
-		require.NoError(s.JobCreate(serverptypes.TestJobNew(t, &pb.Job{
+		require.NoError(s.JobCreate(ptypes.TestJobNew(t, &pb.Job{
 			Id: "B",
 		})))
 
@@ -191,13 +191,13 @@ func TestJobsPrune(t *testing.T) {
 		s := TestState(t)
 		defer s.Close()
 
-		require.NoError(s.JobCreate(serverptypes.TestJobNew(t, &pb.Job{
+		require.NoError(s.JobCreate(ptypes.TestJobNew(t, &pb.Job{
 			Id: "A",
 		})))
 
 		require.NoError(s.JobCancel("A", false))
 
-		require.NoError(s.JobCreate(serverptypes.TestJobNew(t, &pb.Job{
+		require.NoError(s.JobCreate(ptypes.TestJobNew(t, &pb.Job{
 			Id: "B",
 		})))
 
@@ -229,19 +229,19 @@ func TestJobsPrune(t *testing.T) {
 		s := TestState(t)
 		defer s.Close()
 
-		require.NoError(s.JobCreate(serverptypes.TestJobNew(t, &pb.Job{
+		require.NoError(s.JobCreate(ptypes.TestJobNew(t, &pb.Job{
 			Id: "A",
 		})))
 
 		require.NoError(s.JobCancel("A", false))
 
-		require.NoError(s.JobCreate(serverptypes.TestJobNew(t, &pb.Job{
+		require.NoError(s.JobCreate(ptypes.TestJobNew(t, &pb.Job{
 			Id: "B",
 		})))
 
 		require.NoError(s.JobCancel("B", false))
 
-		require.NoError(s.JobCreate(serverptypes.TestJobNew(t, &pb.Job{
+		require.NoError(s.JobCreate(ptypes.TestJobNew(t, &pb.Job{
 			Id: "C",
 		})))
 
@@ -277,19 +277,19 @@ func TestJobsPrune(t *testing.T) {
 		s := TestState(t)
 		defer s.Close()
 
-		require.NoError(s.JobCreate(serverptypes.TestJobNew(t, &pb.Job{
+		require.NoError(s.JobCreate(ptypes.TestJobNew(t, &pb.Job{
 			Id: "A",
 		})))
 
 		require.NoError(s.JobCancel("A", false))
 
-		require.NoError(s.JobCreate(serverptypes.TestJobNew(t, &pb.Job{
+		require.NoError(s.JobCreate(ptypes.TestJobNew(t, &pb.Job{
 			Id: "B",
 		})))
 
 		require.NoError(s.JobCancel("B", false))
 
-		require.NoError(s.JobCreate(serverptypes.TestJobNew(t, &pb.Job{
+		require.NoError(s.JobCreate(ptypes.TestJobNew(t, &pb.Job{
 			Id: "C",
 		})))
 
@@ -352,15 +352,15 @@ func TestJobsProjectScopedRequest(t *testing.T) {
 		const name = "proj"
 		ref := &pb.Ref_Project{Project: name}
 
-		proj := serverptypes.TestProject(t, &pb.Project{Name: name})
+		proj := ptypes.TestProject(t, &pb.Project{Name: name})
 		err := s.ProjectPut(proj)
 		require.NoError(err)
-		_, err = s.AppPut(serverptypes.TestApplication(t, &pb.Application{
+		_, err = s.AppPut(ptypes.TestApplication(t, &pb.Application{
 			Name:    "test",
 			Project: ref,
 		}))
 		require.NoError(err)
-		_, err = s.AppPut(serverptypes.TestApplication(t, &pb.Application{
+		_, err = s.AppPut(ptypes.TestApplication(t, &pb.Application{
 			Name:    "test2",
 			Project: ref,
 		}))

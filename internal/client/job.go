@@ -16,8 +16,8 @@ import (
 	"github.com/hashicorp/waypoint-plugin-sdk/terminal"
 	"github.com/hashicorp/waypoint/internal/pkg/finalcontext"
 	"github.com/hashicorp/waypoint/internal/pkg/gitdirty"
-	pb "github.com/hashicorp/waypoint/internal/server/gen"
 	"github.com/hashicorp/waypoint/internal/server/grpcmetadata"
+	pb "github.com/hashicorp/waypoint/pkg/server/gen"
 )
 
 // job returns the basic job skeleton prepoulated with the correct

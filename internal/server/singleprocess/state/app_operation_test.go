@@ -11,9 +11,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/hashicorp/go-memdb"
-	pb "github.com/hashicorp/waypoint/internal/server/gen"
-	serverptypes "github.com/hashicorp/waypoint/internal/server/ptypes"
-	"github.com/hashicorp/waypoint/internal/serverstate"
+	"github.com/hashicorp/waypoint/pkg/serverstate"
+
+	pb "github.com/hashicorp/waypoint/pkg/server/gen"
+	ptypes2 "github.com/hashicorp/waypoint/pkg/server/ptypes"
 )
 
 func TestAppOperation(t *testing.T) {
@@ -31,7 +32,7 @@ func TestAppOperation(t *testing.T) {
 		defer s.Close()
 
 		// Create a build
-		require.NoError(op.Put(s, false, serverptypes.TestValidBuild(t, &pb.Build{
+		require.NoError(op.Put(s, false, ptypes2.TestValidBuild(t, &pb.Build{
 			Id: "A",
 		})))
 
@@ -47,7 +48,7 @@ func TestAppOperation(t *testing.T) {
 		require.Equal(uint64(1), b.Sequence)
 
 		// Create another, try to change the sequence number
-		require.NoError(op.Put(s, true, serverptypes.TestValidBuild(t, &pb.Build{
+		require.NoError(op.Put(s, true, ptypes2.TestValidBuild(t, &pb.Build{
 			Id:       "A",
 			Sequence: 2,
 		})))
@@ -98,13 +99,13 @@ func TestAppOperation(t *testing.T) {
 				},
 			},
 		}
-		require.NoError(s.JobCreate(serverptypes.TestJobNew(t, &pb.Job{
+		require.NoError(s.JobCreate(ptypes2.TestJobNew(t, &pb.Job{
 			Id:            "jobA",
 			DataSourceRef: ref,
 		})))
 
 		// Create a build
-		require.NoError(op.Put(s, false, serverptypes.TestValidBuild(t, &pb.Build{
+		require.NoError(op.Put(s, false, ptypes2.TestValidBuild(t, &pb.Build{
 			Id:    "A",
 			JobId: "jobA",
 		})))
@@ -157,7 +158,7 @@ func TestAppOperation(t *testing.T) {
 			pt, err := ptypes.TimestampProto(timeVal)
 			require.NoError(err)
 
-			require.NoError(op.Put(s, false, serverptypes.TestValidBuild(t, &pb.Build{
+			require.NoError(op.Put(s, false, ptypes2.TestValidBuild(t, &pb.Build{
 				Id: strconv.FormatInt(timeVal.Unix(), 10),
 				Application: &pb.Ref_Application{
 					Application: "a_test",
@@ -229,7 +230,7 @@ func TestAppOperation(t *testing.T) {
 		pt, err := ptypes.TimestampProto(ts)
 		require.NoError(err)
 
-		require.NoError(op.Put(s, false, serverptypes.TestValidBuild(t, &pb.Build{
+		require.NoError(op.Put(s, false, ptypes2.TestValidBuild(t, &pb.Build{
 			Id:          strconv.FormatInt(ts.Unix(), 10),
 			Application: ref,
 			Status: &pb.Status{
@@ -270,7 +271,7 @@ func TestAppOperation(t *testing.T) {
 			pt, err := ptypes.TimestampProto(ts)
 			require.NoError(err)
 
-			require.NoError(op.Put(s, false, serverptypes.TestValidBuild(t, &pb.Build{
+			require.NoError(op.Put(s, false, ptypes2.TestValidBuild(t, &pb.Build{
 				Id:          "A",
 				Application: ref,
 				Status: &pb.Status{
@@ -284,7 +285,7 @@ func TestAppOperation(t *testing.T) {
 			pt, err := ptypes.TimestampProto(ts)
 			require.NoError(err)
 
-			require.NoError(op.Put(s, false, serverptypes.TestValidBuild(t, &pb.Build{
+			require.NoError(op.Put(s, false, ptypes2.TestValidBuild(t, &pb.Build{
 				Id:          "B",
 				Application: ref,
 				Status: &pb.Status{
@@ -298,7 +299,7 @@ func TestAppOperation(t *testing.T) {
 			pt, err := ptypes.TimestampProto(ts)
 			require.NoError(err)
 
-			require.NoError(op.Put(s, false, serverptypes.TestValidBuild(t, &pb.Build{
+			require.NoError(op.Put(s, false, ptypes2.TestValidBuild(t, &pb.Build{
 				Id:          "C",
 				Application: ref,
 				Status: &pb.Status{
@@ -334,7 +335,7 @@ func TestAppOperation(t *testing.T) {
 		defer s.Close()
 
 		{
-			require.NoError(op.Put(s, false, serverptypes.TestValidBuild(t, &pb.Build{
+			require.NoError(op.Put(s, false, ptypes2.TestValidBuild(t, &pb.Build{
 				Id: "A",
 				Workspace: &pb.Ref_Workspace{
 					Workspace: "WS_A",
@@ -342,7 +343,7 @@ func TestAppOperation(t *testing.T) {
 			})))
 		}
 		{
-			require.NoError(op.Put(s, false, serverptypes.TestValidBuild(t, &pb.Build{
+			require.NoError(op.Put(s, false, ptypes2.TestValidBuild(t, &pb.Build{
 				Id: "B",
 				Workspace: &pb.Ref_Workspace{
 					Workspace: "WS_B",
@@ -350,7 +351,7 @@ func TestAppOperation(t *testing.T) {
 			})))
 		}
 		{
-			require.NoError(op.Put(s, false, serverptypes.TestValidBuild(t, &pb.Build{
+			require.NoError(op.Put(s, false, ptypes2.TestValidBuild(t, &pb.Build{
 				Id: "C",
 				Workspace: &pb.Ref_Workspace{
 					Workspace: "WS_A",
@@ -359,7 +360,7 @@ func TestAppOperation(t *testing.T) {
 		}
 
 		// List with a filter
-		build := serverptypes.TestValidBuild(t, nil)
+		build := ptypes2.TestValidBuild(t, nil)
 		results, err := op.List(s, &serverstate.ListOperationOptions{
 			Application: build.Application,
 			Workspace:   &pb.Ref_Workspace{Workspace: "WS_A"},
@@ -383,7 +384,7 @@ func TestAppOperation(t *testing.T) {
 		defer s.Close()
 
 		{
-			require.NoError(op.Put(s, false, serverptypes.TestValidBuild(t, &pb.Build{
+			require.NoError(op.Put(s, false, ptypes2.TestValidBuild(t, &pb.Build{
 				Id: "A",
 				Workspace: &pb.Ref_Workspace{
 					Workspace: "WS_A",
@@ -391,7 +392,7 @@ func TestAppOperation(t *testing.T) {
 			})))
 		}
 		{
-			require.NoError(op.Put(s, false, serverptypes.TestValidBuild(t, &pb.Build{
+			require.NoError(op.Put(s, false, ptypes2.TestValidBuild(t, &pb.Build{
 				Id: "B",
 				Workspace: &pb.Ref_Workspace{
 					Workspace: "WS_B",
@@ -399,7 +400,7 @@ func TestAppOperation(t *testing.T) {
 			})))
 		}
 		{
-			require.NoError(op.Put(s, false, serverptypes.TestValidBuild(t, &pb.Build{
+			require.NoError(op.Put(s, false, ptypes2.TestValidBuild(t, &pb.Build{
 				Id: "C",
 				Workspace: &pb.Ref_Workspace{
 					Workspace: "WS_A",
@@ -408,7 +409,7 @@ func TestAppOperation(t *testing.T) {
 		}
 
 		// List with a filter
-		build := serverptypes.TestValidBuild(t, nil)
+		build := ptypes2.TestValidBuild(t, nil)
 		results, err := op.List(s, &serverstate.ListOperationOptions{
 			Application: build.Application,
 		})
@@ -432,13 +433,13 @@ func TestAppOperation(t *testing.T) {
 		defer s.Close()
 
 		{
-			require.NoError(op.Put(s, false, serverptypes.TestValidBuild(t, &pb.Build{
+			require.NoError(op.Put(s, false, ptypes2.TestValidBuild(t, &pb.Build{
 				Id: "A",
 			})))
 		}
 
 		// List with a filter
-		build := serverptypes.TestValidBuild(t, nil)
+		build := ptypes2.TestValidBuild(t, nil)
 		results, err := op.List(s, &serverstate.ListOperationOptions{
 			Application:   build.Application,
 			PhysicalState: pb.Operation_CREATED,
@@ -463,7 +464,7 @@ func TestAppOperation(t *testing.T) {
 			pt, err := ptypes.TimestampProto(ts)
 			require.NoError(err)
 
-			require.NoError(op.Put(s, false, serverptypes.TestValidBuild(t, &pb.Build{
+			require.NoError(op.Put(s, false, ptypes2.TestValidBuild(t, &pb.Build{
 				Id:          "A",
 				Application: ref,
 				Status: &pb.Status{
@@ -477,7 +478,7 @@ func TestAppOperation(t *testing.T) {
 			pt, err := ptypes.TimestampProto(ts)
 			require.NoError(err)
 
-			require.NoError(op.Put(s, false, serverptypes.TestValidBuild(t, &pb.Build{
+			require.NoError(op.Put(s, false, ptypes2.TestValidBuild(t, &pb.Build{
 				Id:          "B",
 				Application: ref,
 				Status: &pb.Status{
@@ -508,7 +509,7 @@ func TestAppOperation(t *testing.T) {
 		pt, err := ptypes.TimestampProto(ts)
 		require.NoError(err)
 
-		require.NoError(op.Put(s, false, serverptypes.TestValidBuild(t, &pb.Build{
+		require.NoError(op.Put(s, false, ptypes2.TestValidBuild(t, &pb.Build{
 			Id:          "D",
 			Application: ref,
 			Status: &pb.Status{
@@ -537,10 +538,10 @@ func TestAppOperation_deploy(t *testing.T) {
 		defer s.Close()
 
 		// Create with preload set
-		require.NoError(op.Put(s, false, serverptypes.TestValidDeployment(t, &pb.Deployment{
+		require.NoError(op.Put(s, false, ptypes2.TestValidDeployment(t, &pb.Deployment{
 			Id: "A",
 			Preload: &pb.Deployment_Preload{
-				Build: serverptypes.TestValidBuild(t, nil),
+				Build: ptypes2.TestValidBuild(t, nil),
 			},
 		})))
 
@@ -612,11 +613,11 @@ func TestAppOperation_deploy(t *testing.T) {
 		expectedId := "f0866585-2aab-498b-8842-27706865acda"
 
 		// Create with preload set
-		require.NoError(op.Put(s, false, serverptypes.TestValidDeployment(t, &pb.Deployment{
+		require.NoError(op.Put(s, false, ptypes2.TestValidDeployment(t, &pb.Deployment{
 			Id:         "A",
 			Generation: &pb.Generation{Id: expectedId},
 			Preload: &pb.Deployment_Preload{
-				Build: serverptypes.TestValidBuild(t, nil),
+				Build: ptypes2.TestValidBuild(t, nil),
 			},
 		})))
 
@@ -640,20 +641,20 @@ func TestAppOperation_deploy(t *testing.T) {
 		defer s.Close()
 
 		{
-			require.NoError(op.Put(s, false, serverptypes.TestValidDeployment(t, &pb.Deployment{
+			require.NoError(op.Put(s, false, ptypes2.TestValidDeployment(t, &pb.Deployment{
 				Id:    "A",
 				State: pb.Operation_CREATED,
 			})))
 		}
 		{
-			require.NoError(op.Put(s, false, serverptypes.TestValidDeployment(t, &pb.Deployment{
+			require.NoError(op.Put(s, false, ptypes2.TestValidDeployment(t, &pb.Deployment{
 				Id:    "B",
 				State: pb.Operation_PENDING,
 			})))
 		}
 
 		// List with a filter
-		deploy := serverptypes.TestValidDeployment(t, nil)
+		deploy := ptypes2.TestValidDeployment(t, nil)
 		results, err := op.List(s, &serverstate.ListOperationOptions{
 			Application:   deploy.Application,
 			PhysicalState: pb.Operation_CREATED,

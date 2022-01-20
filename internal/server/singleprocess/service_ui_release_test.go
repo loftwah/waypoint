@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/hashicorp/waypoint/internal/server"
-	pb "github.com/hashicorp/waypoint/internal/server/gen"
-	serverptypes "github.com/hashicorp/waypoint/internal/server/ptypes"
+	"github.com/hashicorp/waypoint/pkg/server"
+	pb "github.com/hashicorp/waypoint/pkg/server/gen"
+	"github.com/hashicorp/waypoint/pkg/server/ptypes"
 )
 
 func TestServiceUI_Release_ListReleases(t *testing.T) {
@@ -24,7 +24,7 @@ func TestServiceUI_Release_ListReleases(t *testing.T) {
 
 	// Create a project with an application
 	respProj, err := client.UpsertProject(ctx, &pb.UpsertProjectRequest{
-		Project: serverptypes.TestProject(t, &pb.Project{
+		Project: ptypes.TestProject(t, &pb.Project{
 			Name: "Example",
 			DataSource: &pb.Job_DataSource{
 				Source: &pb.Job_DataSource_Local{
@@ -43,14 +43,14 @@ func TestServiceUI_Release_ListReleases(t *testing.T) {
 	require.NotNil(t, respProj)
 
 	buildresp, err := client.UpsertBuild(ctx, &pb.UpsertBuildRequest{
-		Build: serverptypes.TestValidBuild(t, nil),
+		Build: ptypes.TestValidBuild(t, nil),
 	})
 	require.NoError(t, err)
 	require.NotNil(t, buildresp)
 
 	build := buildresp.Build
 
-	artifact := serverptypes.TestValidArtifact(t, nil)
+	artifact := ptypes.TestValidArtifact(t, nil)
 	artifact.BuildId = build.Id
 
 	artifactresp, err := client.UpsertPushedArtifact(ctx, &pb.UpsertPushedArtifactRequest{
@@ -59,11 +59,11 @@ func TestServiceUI_Release_ListReleases(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, artifactresp)
 
-	dep := serverptypes.TestValidDeployment(t, nil)
+	dep := ptypes.TestValidDeployment(t, nil)
 	dep.ArtifactId = artifactresp.Artifact.Id
 
 	deployResp, err := client.UpsertDeployment(ctx, &pb.UpsertDeploymentRequest{
-		Deployment: serverptypes.TestValidDeployment(t, &pb.Deployment{
+		Deployment: ptypes.TestValidDeployment(t, &pb.Deployment{
 			Component: &pb.Component{
 				Name: "testapp",
 			},
@@ -78,7 +78,7 @@ func TestServiceUI_Release_ListReleases(t *testing.T) {
 	require.NotNil(t, deployResp)
 
 	releaseResp, err := client.UpsertRelease(ctx, &pb.UpsertReleaseRequest{
-		Release: serverptypes.TestValidRelease(t, &pb.Release{
+		Release: ptypes.TestValidRelease(t, &pb.Release{
 			DeploymentId: deployResp.Deployment.Id,
 			Application: &pb.Ref_Application{
 				Application: "apple-app",
@@ -89,7 +89,7 @@ func TestServiceUI_Release_ListReleases(t *testing.T) {
 	require.NoError(t, err)
 
 	sr1, err := client.UpsertStatusReport(ctx, &pb.UpsertStatusReportRequest{
-		StatusReport: serverptypes.TestValidStatusReport(t, &pb.StatusReport{
+		StatusReport: ptypes.TestValidStatusReport(t, &pb.StatusReport{
 			TargetId: &pb.StatusReport_ReleaseId{
 				ReleaseId: releaseResp.Release.Id,
 			},
@@ -132,7 +132,7 @@ func TestServiceUI_Release_ListReleases(t *testing.T) {
 	t.Run("list shows newest status report", func(t *testing.T) {
 		// Insert another status report for the release, with a newer time
 		sr2, err := client.UpsertStatusReport(ctx, &pb.UpsertStatusReportRequest{
-			StatusReport: serverptypes.TestValidStatusReport(t, &pb.StatusReport{
+			StatusReport: ptypes.TestValidStatusReport(t, &pb.StatusReport{
 				TargetId: &pb.StatusReport_ReleaseId{
 					ReleaseId: releaseResp.Release.Id,
 				},
