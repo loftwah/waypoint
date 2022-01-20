@@ -62,7 +62,7 @@ var (
 		"ListOIDCAuthMethods": {},
 		"GetOIDCAuthURL":      {},
 		"CompleteOIDCAuth":    {},
-		"AuthlessRunTrigger":  {},
+		"NoAuthRunTrigger":    {},
 	}
 )
 
